@@ -26,29 +26,32 @@ sql = f"""
             and day > '2022-03-01 00:00:00.000'
             group by 1
             """
-    # SELECT 
-    #     nft_address, 
-    #     mint_price_eth, 
-    #     mint_price_usd 
-    # FROM ethereum.core.ez_nft_mints 
-    # WHERE nft_to_address = LOWER('{my_address}')
-    # LIMIT 100
+top = f"""
+    SELECT 
+    project_name,
+    max(price) as price
+    FROM ethereum.core.ez_nft_sales 
+    where currency_symbol in ('WETH','ETH') 
+    and total_fees_usd > 5 
+    and platform_name = 'opensea'
+    and date_trunc('day', block_timestamp) = current_date
+    group by 1
+    order by 2 desc
+    limit 10
+"""
 
 
 
 # %%
 query_result_set = sdk.query(sql)
-    # ,ttl_minutes=60,
-    # cached=True,
-    # timeout_minutes=20,
-    # retry_interval_seconds=1,
-    # page_size=500,
-    # page_number=2
+query_result_set2 = sdk.query(top)
 
 
 # %%
 df = pd.DataFrame(query_result_set.records)
 df
+df2 = pd.DataFrame(query_result_set2.records)
+df2
 
 # %%
 st.title('Opensea Volume')
@@ -75,3 +78,9 @@ chart = alt.Chart(df).mark_area(
 )
 
 st.altair_chart(chart)
+
+chart2 = alt.Chart(df2).mark_bar().encode(
+    x='project_name',
+    y='price')
+
+st.altair_chart(chart2)

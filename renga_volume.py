@@ -8,6 +8,7 @@ import altair as alt
 # %%
 # Initialize `ShroomDK` with your API Key
 sdk = ShroomDK("7d45ba9b-a130-4537-a45a-8493e706edae")
+st.set_page_config(layout='wide')
 
 # %%
 # Parameters can be passed into SQL statements 
